@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "360645958925",
+    "project_id": "androidnotifications-1e48d",
+    "storage_bucket": "androidnotifications-1e48d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360645958925:android:c2370b7f11176da5776444",
+        "android_client_info": {
+          "package_name": "com.micoder.androidnotifications"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "360645958925-mn2pg0tgs1150vuab3gf96uvpogbav1b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_z8OUg4Oyk0Nr9wX2w8aWvmYhGLNPakM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360645958925-mn2pg0tgs1150vuab3gf96uvpogbav1b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
