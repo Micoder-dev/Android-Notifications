@@ -66,20 +66,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (task.isSuccessful()) {
-
-                            String token = task.getResult();
-
-                        }else {
-
-                        }
-                    }
-                });
-
     }
 
     private void createUser() {
@@ -145,6 +131,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (mAuth.getCurrentUser() != null) {
+            startProfileActivity();
+        }
     }
 
     private void startProfileActivity() {
