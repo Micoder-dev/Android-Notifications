@@ -26,6 +26,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        FirebaseMessaging.getInstance().subscribeToTopic("updates");
+
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
