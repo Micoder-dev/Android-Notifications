@@ -7,13 +7,20 @@ import androidx.core.app.NotificationManagerCompat;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,12 +33,17 @@ public class MainActivity extends AppCompatActivity {
     private static final String CHANNEL_NAME = "Simplified Coding";
     private static final String CHANNEL_DESC = "Simplified Coding Notifications";
 
-    private TextView textView;
+    private EditText editTextEmail, editTextPassword;
+    private ProgressBar progressBar;
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mAuth = FirebaseAuth.getInstance();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -39,10 +51,20 @@ public class MainActivity extends AppCompatActivity {
             channel.setDescription(CHANNEL_DESC);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
-
         }
 
-        textView = findViewById(R.id.textViewToken);
+        progressBar = findViewById(R.id.progressbar);
+        progressBar.setVisibility(View.INVISIBLE);
+        editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPassword = findViewById(R.id.editTextPassword);
+
+        findViewById(R.id.buttonSignUp).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createUser();
+            }
+        });
+
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
@@ -51,16 +73,84 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
 
                             String token = task.getResult();
-                            textView.setText("Token : " + token);
 
                         }else {
-
-                            textView.setText(task.getException().getMessage());
 
                         }
                     }
                 });
 
+    }
+
+    private void createUser() {
+
+        String email = editTextEmail.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
+
+        if (email.isEmpty()) {
+            editTextEmail.setError("Email required");
+            editTextEmail.requestFocus();
+            return;
+        }
+        if (password.isEmpty()) {
+            editTextPassword.setText("Password required");
+            editTextPassword.requestFocus();
+            return;
+        }
+        if (password.length()<6) {
+            editTextPassword.setText("Password should be more than 6 char");
+            editTextPassword.requestFocus();
+            return;
+        }
+
+        progressBar.setVisibility(View.VISIBLE);
+        mAuth.createUserWithEmailAndPassword(email,password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        if (task.isSuccessful()) {
+                            startProfileActivity();
+                        }
+                        else {
+                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                                userLogin(email,password);
+                            }
+                            else {
+                                progressBar.setVisibility(View.INVISIBLE);
+                                Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                    }
+                });
+
+    }
+
+    private void userLogin(String email, String password) {
+
+        mAuth.signInWithEmailAndPassword(email,password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        if (task.isSuccessful()) {
+                            startProfileActivity();
+                        }
+                        else {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                });
+
+    }
+
+    private void startProfileActivity() {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     private void displayNotification() {
